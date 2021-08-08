@@ -11,6 +11,16 @@ jobs:
       - run: npm ci
       - run: npm run lint
       - run: npm run test
+      - name: Generate Dist
+        if: ${{ github.event_name == 'pull_request' }}
+        run: |
+          npm run build
+          git diff --exit-code --quiet ./dist && exit 0 || echo "changes detected"
+          git config user.name "${{ github.actor }}"
+          git config user.email "${{ github.actor }}@users.noreply.github.com"
+          git add dist
+          git commit -m "bot:"
+          git push
 
   automerge:
     needs: build
